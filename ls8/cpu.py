@@ -1,13 +1,31 @@
 """CPU functionality."""
 
-import sys
 
+import sys
+# registers hold a single byte
 class CPU:
     """Main CPU class."""
 
+
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        register = [0] * 8
+        memory = [0] * 256
+        ram = [0] * 8
+        self.ram = ram
+
+        self.PC = 0
+        self.IR = [0] * 8
+        self.MAR = []
+        self.FL = 0
+    def ram_read(self, address):
+        return ram[address]
+
+    def ram_write(self, value, address):
+        MAR = address
+        MDR = value
+        ram[MAR] = MDR
+        return  ram[MAR]
 
     def load(self):
         """Load a program into memory."""
@@ -62,4 +80,65 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+        #read whatever is in IR[PC]
+        IR = [0]*8
+        halted = False
+        HLT = 1
+        LDI = 130
+        PRN = 71
+
+
+        for i in self.ram:
+            if i != 0:
+                IR[self.PC] = i
+                self.PC +=1
+        #print(IR)
+        self.PC = 0
+
+        while not halted:
+            
+            operand_a = IR[self.PC+1]
+            operand_b = IR[self.PC+2]
+            
+            if IR[self.PC] == PRN:
+                print(IR[self.PC])
+                self.PC +=1
+
+            if IR[self.PC] == HLT:
+                sys.exit(1)
+                halted = True
+            else:
+                print("unknown value")
+                self.PC += 1
+        
+
+# read program data
+address = 0
+"""
+#need mod, specifiy base of value when converting to string
+if len(sys.argv) != 2:
+    print("usage: comp.py progname")
+    sys.exit(1)
+
+try:
+    with open(sys.argv[1]) as f:
+        for line in f:
+            line = line.strip()
+
+            if line == '' or line[0] == '#':
+                continue
+            try:
+                str_value = line.split("#")[0]
+                value = int(str_value, 10) #need in base 2 because binary is base 2
+
+            except ValueError:
+                print(f"invalid number: {str_value}")
+                sys.exit(1)
+
+            memory[address] = value
+            address += 1
+
+except FileNotFoundError:
+    print(f"File not found: {sys.argv[1]}")
+    sys.exit(2)
+"""
