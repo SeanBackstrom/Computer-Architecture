@@ -10,3 +10,4 @@ cpu = CPU()
 cpu.load()
 cpu.run()
 
+print(f"hi {10000010:b}")
