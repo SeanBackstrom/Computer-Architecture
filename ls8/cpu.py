@@ -7,6 +7,8 @@ HLT = 0b00000001 #store as binary
 LDI = 0b10000010
 PRN = 0b01000111
 MUL = 0b10100010
+PUSH =0b01000101
+POP = 0b01000110
 
 class CPU:
     """Main CPU class."""
@@ -18,6 +20,9 @@ class CPU:
         self.ram = [0] * 256
         self.halted = False
         self.PC = 0
+        self.SP = 7
+        self.register[self.SP] = 0xf4
+
 
         #self.MAR = []
         #self.FL = 0
@@ -123,6 +128,25 @@ class CPU:
             if IR == MUL:
                 self.alu('MULT', operand_a, operand_b)
                 self.PC += 2
+
+            if IR == PUSH:
+                self.register[self.SP] -= 1
+                value = self.register[operand_a]
+
+                top_of_stack = self.register[self.SP]
+                self.ram[top_of_stack] = value
+                self.PC += 1
+
+            if IR == POP:
+                top_of_stack = self.register[self.SP]
+                value = self.ram[top_of_stack]
+
+                self.register[operand_a] = value
+
+                self.register[self.SP] +=1
+                self.PC += 1
+
+                
 
 
             if IR == HLT:
