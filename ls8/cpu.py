@@ -10,6 +10,11 @@ MUL = 0b10100010
 PUSH =0b01000101
 POP = 0b01000110
 
+CMP = 0b10100111
+JMP = 0b01010100
+JEQ = 0b01010101
+JNE = 0b01010110
+
 class CPU:
     """Main CPU class."""
 
@@ -23,11 +28,19 @@ class CPU:
         self.SP = 7
         self.register[self.SP] = 0xf4
 
+        # flags
+        self.E = 0
+        self.L = 0
+        self.G = 0
+
 
         #self.MAR = []
         #self.FL = 0
     def ram_read(self, address):
-        return self.ram[address]
+        if address > len(self.ram)-1:
+            return 0
+        else:
+            return self.ram[address]
 
     def ram_write(self, value, address):
         MAR = address
@@ -105,16 +118,31 @@ class CPU:
 
         print()
 
+    def binaryToDecimal(self, binary): 
+      
+        binary1 = binary 
+        decimal, i, n = 0, 0, 0
+
+        while(binary != 0): 
+            dec = binary % 10
+            decimal = decimal + dec * pow(2, i) 
+            binary = binary//10
+            i += 1
+        return decimal
+    
+    #def jump(self, operand_a)
+
+
     def run(self):
         """Run the CPU."""
         #read whatever is in IR[PC]
 
         while not self.halted:
-
             IR = self.ram[self.PC]
 
             operand_a = self.ram_read(self.PC + 1)
             operand_b = self.ram_read(self.PC + 2)
+
             
             if IR == LDI:
                 #put operand b into register[operand_a]
@@ -146,15 +174,55 @@ class CPU:
                 self.register[self.SP] +=1
                 self.PC += 1
 
-                
-
-
             if IR == HLT:
                 sys.exit(1)
                 self.halted = True
+
+            if IR == CMP:
+                #print("CMP")
+                if self.register[operand_a] == self.register[operand_b]:
+                    self.E = 1
+                    self.L = 0
+                    self.G = 0
+                    self.PC += 2
+                elif self.register[operand_a] < self.register[operand_b]:
+                    self.L = 1
+                    self.E = 0
+                    self.G = 0
+                    self.PC += 2
+                elif self.register[operand_a] > self.register[operand_b]:
+                    self.G = 1
+                    self.E = 0
+                    self.L = 0
+                    self.PC += 2
             
+            if IR == JMP:
+                #print("JMP")
+                self.PC = self.register[operand_a]
+            
+            if IR == JEQ:
+                #print("JEQ")
+                if self.E == 1:
+                    self.PC = self.register[operand_a]
+                else:
+                    self.PC +=1
+            
+           
+            if IR  == JNE:
+                #print("JNE")
+                if self.E == 0:
+                    self.PC = self.register[operand_a]
+                else:
+                    self.PC += 1
+
+
             else:
                 self.PC += 1
+            
+            if self.PC == 256:
+                sys.exit(1)
+                self.halted = True    
+
         
 
 # read program data
